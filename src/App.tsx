@@ -4,7 +4,6 @@ import {
   ArrowUpRight,
   Check,
   Eye,
-  RotateCcw,
   ChevronLeft,
   ChevronRight,
   Shuffle,
@@ -48,6 +47,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
 
   const currentVerb = deck[currentIndex] || allVerbs[0]
 
@@ -138,24 +138,48 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [viewMode, currentIndex, deck.length])
 
-  // Mobile swipe gestures
+  // Mobile swipe gestures (guarded against edge-swipes and vertical scrolling)
   const handleTouchStart = (e: React.TouchEvent) => {
     if (viewMode !== 'practice') return
-    touchStartX.current = e.touches[0].clientX
+    const touch = e.touches[0]
+    const screenWidth = window.innerWidth
+    // Ignore edge-swipes (< 40px or > width - 40px) reserved for native browser history navigation
+    if (touch.clientX < 40 || touch.clientX > screenWidth - 40) {
+      touchStartX.current = null
+      touchStartY.current = null
+      return
+    }
+    touchStartX.current = touch.clientX
+    touchStartY.current = touch.clientY
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (viewMode !== 'practice' || touchStartX.current === null) return
-    const touchEndX = e.changedTouches[0].clientX
-    const diff = touchEndX - touchStartX.current
-    if (Math.abs(diff) > 50) {
-      if (diff < 0) {
+    if (viewMode !== 'practice' || touchStartX.current === null || touchStartY.current === null) return
+    const touch = e.changedTouches[0]
+    const diffX = touch.clientX - touchStartX.current
+    const diffY = touch.clientY - touchStartY.current
+
+    touchStartX.current = null
+    touchStartY.current = null
+
+    // If vertical movement is dominant, user is scrolling through tables -> do not trigger swipe
+    if (Math.abs(diffY) > Math.abs(diffX) * 0.7) {
+      return
+    }
+
+    if (Math.abs(diffX) > 55) {
+      if (diffX < 0) {
+        // Swiped left -> Next verb
         goToNext()
       } else {
-        goToPrev()
+        // Swiped right -> In details view, return to prompt! In prompt view, go to prev card
+        if (revealed) {
+          setRevealed(false)
+        } else {
+          goToPrev()
+        }
       }
     }
-    touchStartX.current = null
   }
 
   const heForm =
@@ -432,6 +456,18 @@ export default function App() {
               </div>
             ) : (
               <div className="answer-view" key={`answer-${currentVerb.id}-${currentIndex}`}>
+                {/* TOP ACTION BAR: QUICK RETURN & ADVANCE (SAME ROW) */}
+                <div className="answer-nav-bar answer-nav-top">
+                  <button className="back-button" onClick={() => setRevealed(false)}>
+                    <ArrowLeft size={18} />
+                    <span>Back to prompt</span>
+                  </button>
+                  <button className="next-button" onClick={goToNext} title="Next verb">
+                    <span>Next verb</span>
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+
                 <div className="answer-heading">
                   <div>
                     <p className="stage-kicker">ROOT MEANING</p>
@@ -455,27 +491,16 @@ export default function App() {
                   <FormSection title="Present tense" arabicTitle="المضارع" forms={currentVerb.presentForms} />
                 </div>
 
-                <div className="answer-actions">
+                {/* BOTTOM ACTION BAR: IDENTICAL TO TOP (SAME ROW) */}
+                <div className="answer-nav-bar answer-nav-bottom">
                   <button className="back-button" onClick={() => setRevealed(false)}>
-                    <ArrowLeft size={18} /> Back to prompt
+                    <ArrowLeft size={18} />
+                    <span>Back to prompt</span>
                   </button>
-                  <div className="answer-actions-group">
-                    <button
-                      className="back-button"
-                      onClick={goToPrev}
-                      disabled={currentIndex === 0}
-                      title="Previous verb"
-                    >
-                      <ChevronLeft size={18} /> Previous
-                    </button>
-                    <button className="review-button" onClick={() => setRevealed(false)}>
-                      <RotateCcw size={17} /> Review again
-                    </button>
-                    <button className="next-button" onClick={goToNext} title="Next verb">
-                      <span>Next Verb</span>
-                      <ChevronRight size={18} />
-                    </button>
-                  </div>
+                  <button className="next-button" onClick={goToNext} title="Next verb">
+                    <span>Next verb</span>
+                    <ChevronRight size={18} />
+                  </button>
                 </div>
               </div>
             )}
