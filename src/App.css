@@ -937,8 +937,7 @@ kbd {
   }
 }
 
-/* View All Trigger Button & Topbar Toggle */
-.view-all-btn,
+/* Topbar Mode Toggle */
 .view-mode-toggle-btn {
   display: inline-flex;
   align-items: center;
@@ -954,7 +953,6 @@ kbd {
   transition: all 180ms ease-out;
 }
 
-.view-all-btn:hover,
 .view-mode-toggle-btn:hover {
   background: var(--green-soft);
   border-color: oklch(0.72 0.04 145);
@@ -963,29 +961,6 @@ kbd {
 .view-mode-toggle-btn.active-mode {
   background: var(--green-soft);
   border-color: var(--green-dark);
-}
-
-.sidebar-browse-btn {
-  margin-top: 28px;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-radius: 6px;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 180ms ease-out;
-}
-
-.sidebar-browse-btn:hover {
-  background: var(--green-soft);
-  color: var(--green-dark);
-  border-color: var(--green);
 }
 
 /* Directory Layout */

@@ -10,8 +10,7 @@ import {
   Shuffle,
   LayoutGrid,
   Search,
-  X,
-  BookOpen
+  X
 } from 'lucide-react'
 import { allVerbs, shuffleVerbs, type VerbData, type VerbForm } from './data'
 import './App.css'
@@ -379,15 +378,6 @@ export default function App() {
               <p className="keyboard-hint"><kbd>→</kbd> next · <kbd>←</kbd> prev</p>
               <p className="keyboard-hint"><kbd>S</kbd> shuffle deck</p>
             </div>
-
-            <button
-              className="sidebar-browse-btn"
-              onClick={() => setViewMode('directory')}
-              title="Open full dictionary index"
-            >
-              <BookOpen size={16} />
-              <span>Browse All {allVerbs.length} Verbs</span>
-            </button>
           </aside>
 
           <section className="study-stage" aria-live="polite">
@@ -398,16 +388,6 @@ export default function App() {
                     <p className="stage-kicker">PAST TENSE · THIRD PERSON</p>
                     <h1>Which verb do you recognise?</h1>
                   </div>
-
-                  {/* REPURPOSED HEADER BUTTON: VIEW ALL VERBS */}
-                  <button
-                    className="view-all-btn"
-                    onClick={() => setViewMode('directory')}
-                    title="View All Verbs Directory"
-                  >
-                    <LayoutGrid size={15} />
-                    <span>View all ({allVerbs.length})</span>
-                  </button>
                 </div>
 
                 <button className="prompt-card" onClick={() => setRevealed(true)} aria-expanded={revealed}>
