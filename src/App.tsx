@@ -46,6 +46,7 @@ export default function App() {
   const [revealed, setRevealed] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
+  const [showLeavePrompt, setShowLeavePrompt] = useState(false)
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
 
@@ -112,6 +113,21 @@ export default function App() {
   }
 
   // Keyboard navigation (active in practice mode)
+  // History API trap: intercept browser back-swipe and show a "Leave?" prompt
+  useEffect(() => {
+    // Push a sentinel entry so there is always a state to pop before the app URL
+    history.pushState({ appTrap: true }, '')
+
+    const onPopState = () => {
+      // Re-push the sentinel so the next back-swipe is also intercepted
+      history.pushState({ appTrap: true }, '')
+      setShowLeavePrompt(true)
+    }
+
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
   useEffect(() => {
     if (viewMode !== 'practice') return
 
@@ -506,6 +522,38 @@ export default function App() {
             )}
           </section>
         </main>
+      )}
+
+      {/* Leave confirmation — intercepts accidental browser back-swipe */}
+      {showLeavePrompt && (
+        <div className="leave-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="leave-modal-title">
+          <div className="leave-modal">
+            <p className="leave-modal-icon">⟵</p>
+            <h2 id="leave-modal-title">Leave practice?</h2>
+            <p className="leave-modal-desc">
+              It looks like you swiped back. Do you want to leave Arabic Verb Revision?
+            </p>
+            <div className="leave-modal-actions">
+              <button
+                className="leave-modal-stay"
+                onClick={() => setShowLeavePrompt(false)}
+                autoFocus
+              >
+                Stay in app
+              </button>
+              <button
+                className="leave-modal-leave"
+                onClick={() => {
+                  setShowLeavePrompt(false)
+                  // Go back twice: undo the re-push sentinel, then actually leave
+                  history.go(-2)
+                }}
+              >
+                Leave
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
