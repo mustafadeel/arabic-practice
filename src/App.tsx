@@ -9,7 +9,8 @@ import {
   Shuffle,
   LayoutGrid,
   Search,
-  X
+  X,
+  Link2
 } from 'lucide-react'
 import { allVerbs, shuffleVerbs, type VerbData, type VerbForm } from './data'
 import './App.css'
@@ -47,6 +48,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [showLeavePrompt, setShowLeavePrompt] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
 
@@ -112,7 +114,24 @@ export default function App() {
     setViewMode('practice')
   }
 
-  // Keyboard navigation (active in practice mode)
+  // Deep-link boot: on first load read #verb=<id> and jump to that card
+  useEffect(() => {
+    const hash = window.location.hash
+    const match = hash.match(/[#&]verb=([^&]+)/)
+    if (match) {
+      handleJumpToVerb(decodeURIComponent(match[1]))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Deep-link sync: keep the URL hash in step with the current verb while practising.
+  // Uses replaceState so it never adds to the history stack.
+  useEffect(() => {
+    if (viewMode !== 'practice') return
+    const url = `${window.location.pathname}${window.location.search}#verb=${currentVerb.id}`
+    history.replaceState(history.state, '', url)
+  }, [currentVerb.id, viewMode])
+
   // History API trap: intercept browser back-swipe and show a "Leave?" prompt
   useEffect(() => {
     // Push a sentinel entry so there is always a state to pop before the app URL
@@ -490,9 +509,25 @@ export default function App() {
                     <h1>{currentVerb.english}</h1>
                     <p className="transliteration">{currentVerb.transliteration}</p>
                   </div>
-                  <div className="answer-verb">
-                    <span lang="ar" dir="rtl">{currentVerb.arabic}</span>
-                    <small>Past tense · {currentVerb.pronounPrompt || 'he'}</small>
+                  <div className="answer-verb-col">
+                    <div className="answer-verb">
+                      <span lang="ar" dir="rtl">{currentVerb.arabic}</span>
+                      <small>Past tense · {currentVerb.pronounPrompt || 'he'}</small>
+                    </div>
+                    <button
+                      className={`copy-link-btn${copiedLink ? ' copied' : ''}`}
+                      title="Copy link to this verb"
+                      onClick={() => {
+                        const url = `${window.location.origin}${window.location.pathname}#verb=${currentVerb.id}`
+                        navigator.clipboard.writeText(url).then(() => {
+                          setCopiedLink(true)
+                          setTimeout(() => setCopiedLink(false), 2000)
+                        })
+                      }}
+                    >
+                      {copiedLink ? <Check size={14} /> : <Link2 size={14} />}
+                      <span>{copiedLink ? 'Copied!' : 'Copy link'}</span>
+                    </button>
                   </div>
                 </div>
 
