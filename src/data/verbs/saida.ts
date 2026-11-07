@@ -6,7 +6,7 @@ export const saida: VerbData = {
   arabic: 'صَعِدَ',
   transliteration: 'ṣaʿida · Form I',
   english: 'to climb / ascend',
-  category: 'Movement',
+  category: 'Movement verbs',
   formNumber: 'Form I',
   pronounPrompt: 'هُوَ',
   pastForms: [

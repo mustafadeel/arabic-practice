@@ -53,12 +53,13 @@ A mobile-first Arabic verb flashcard app. Cards appear in random order; tap to r
 
 | Category | Used for |
 |---|---|
-| `Movement` | ذَهَبَ, جَاءَ, رَجَعَ, وَصَلَ, صَعِدَ … |
+| `Movement verbs` | ذَهَبَ, جَاءَ, رَجَعَ, وَصَلَ, صَعِدَ, رَكِبَ … |
 | `Daily actions` | أَكَلَ, شَرِبَ, لَبِسَ … |
-| `Cognition` | عَرَفَ, فَهِمَ, دَرَى, رَأَى … |
-| `Speech` | قَالَ, قَرَأَ … |
-| `Existence` | كَانَ, عَاشَ … |
-| `Worship` | *(add as needed)* |
+| `Cognition` | عَرَفَ, فَهِمَ, دَرَى … |
+| `Perception` | رَأَى, نَظَرَ … |
+| `Communication` | قَالَ, قَرَأَ … |
+| `State verbs` | كَانَ, عَاشَ … |
+| `Moral & Spiritual` | تَابَ, هَدَى, وَقَى … |
 
 You can introduce any new category string — it will appear automatically as a filter pill in the "View All" directory.
 
