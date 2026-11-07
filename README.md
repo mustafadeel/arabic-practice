@@ -1,73 +1,94 @@
-# React + TypeScript + Vite
+# Arabic Verb Revision
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A mobile-first Arabic verb flashcard app. Cards appear in random order; tap to reveal conjugations, swipe or use the navigation buttons to move between verbs.
 
-Currently, two official plugins are available:
+**Live app → [mustafadeel.github.io/arabic-practice](https://mustafadeel.github.io/arabic-practice/)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Adding a new verb
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> Drop one file into `src/data/verbs/` and it automatically appears in both the practice deck and the "View All" directory. No other changes needed.
 
-## Expanding the ESLint configuration
+### Step-by-step
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Copy the template**
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+   ```bash
+   cp src/data/_template.ts src/data/verbs/mySajada.ts
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+   Name the file after the verb's transliteration (lowercase, no diacritics), e.g. `sajada.ts`, `kataba.ts`.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. **Fill in the fields**
+
+   Open your new file and replace every placeholder value:
+
+   | Field | Description | Example |
+   |---|---|---|
+   | `id` | Unique string key — use the filename without `.ts` | `'sajada'` |
+   | `root` | Arabic root letters separated by `–` | `'س – ج – د'` |
+   | `arabic` | The he-form past tense with full diacritics | `'سَجَدَ'` |
+   | `transliteration` | Latin spelling + Form number | `'sajada · Form I'` |
+   | `english` | English infinitive meaning | `'to prostrate'` |
+   | `category` | Thematic group (see categories below) | `'Worship'` |
+   | `formNumber` | Quranic/grammatical form | `'Form I'` |
+   | `pronounPrompt` | Pronoun shown on the flashcard prompt | `'هُوَ'` *(usually he-form)* |
+   | `pastForms` | 6 conjugated past-tense rows | see template |
+   | `presentForms` | 6 conjugated present-tense rows | see template |
+
+3. **Each form row looks like this**
+
+   ```ts
+   { english: 'He prostrated', arabic: 'هُوَ سَجَدَ' }
+   // Optional note for disambiguating gender/number:
+   { english: 'You prostrated', arabic: 'أَنْتَ سَجَدْتَ', note: 'm.' }
+   ```
+
+   Always include the full pronoun in the Arabic column.
+
+4. **Save → done.** Vite discovers the file automatically via `import.meta.glob`. Rebuild (`npm run build`) or just refresh the dev server.
+
+### Categories in use
+
+| Category | Used for |
+|---|---|
+| `Movement` | ذَهَبَ, جَاءَ, رَجَعَ, وَصَلَ, صَعِدَ … |
+| `Daily actions` | أَكَلَ, شَرِبَ, لَبِسَ … |
+| `Cognition` | عَرَفَ, فَهِمَ, دَرَى, رَأَى … |
+| `Speech` | قَالَ, قَرَأَ … |
+| `Existence` | كَانَ, عَاشَ … |
+| `Worship` | *(add as needed)* |
+
+You can introduce any new category string — it will appear automatically as a filter pill in the "View All" directory.
+
+---
+
+## Project structure
+
+```
+src/
+  data/
+    types.ts          ← VerbData / VerbForm TypeScript interfaces
+    index.ts          ← auto-loads all verbs via import.meta.glob + shuffleVerbs()
+    _template.ts      ← copy this when adding a new verb
+    verbs/
+      dhahaba.ts      ← one file per verb
+      akala.ts
+      saida.ts
+      …
+  App.tsx             ← practice deck + directory view
+  App.css             ← all styles
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev        # dev server at http://localhost:5173
+npm run build      # production build → dist/
 ```
+
+## Deployment
+
+Pushing to `main` automatically deploys to GitHub Pages via `.github/workflows/deploy.yml`.
